@@ -449,20 +449,22 @@ function render(){
 }
 
 function renderLog(e,wk,lg){
-  if(e.t==='kg' || e.t==='hiit'){
+  if(e.t==='hiit'){
     const v=(lg.sets[0]||{}).kg||'';
-    const label = e.t==='hiit'? 'Carga / notas del intervalo' : 'Carga usada o resultado';
-    return `<div class="single"><div class="hd" style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">${label}</div>
-      <input class="ipt" style="text-align:left" placeholder="Ej: 24 kg · 12 reps" value="${escH(v)}" oninput="setSet('${e.l}',0,'kg',this.value)"></div>`;
+    return `<div class="single"><div class="hd" style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Carga / notas del intervalo</div>
+      <input class="ipt" style="text-align:left" placeholder="Ej: 24 kg · RPE 7" value="${escH(v)}" oninput="setSet('${e.l}',0,'kg',this.value)"></div>`;
   }
-  let n = parseInt(wk.s); if(isNaN(n)||n>4) n=3; if(n<1) n=1;
+  let n = parseInt(wk.s); if(isNaN(n)) n=3; if(n<1) n=1; if(n>6) n=6;
+  const parts = String(wk.r).includes('/') ? String(wk.r).split('/').map(x=>x.trim()) : null;
   let rows='';
   for(let i=0;i<n;i++){
     const st=lg.sets[i]||{};
+    let rt = parts ? (parts[i]||parts[parts.length-1]) : String(wk.r);
+    const ph = (rt && rt.length<=4) ? rt : 'reps';
     rows+=`<div class="setrow">
       <span class="setlbl">Serie ${i+1}</span>
       <input class="ipt" inputmode="decimal" placeholder="kg" value="${escH(st.kg||'')}" oninput="setSet('${e.l}',${i},'kg',this.value)">
-      <input class="ipt" inputmode="numeric" placeholder="reps" value="${escH(st.reps||'')}" oninput="setSet('${e.l}',${i},'reps',this.value)">
+      <input class="ipt" placeholder="${escH(ph)}" value="${escH(st.reps||'')}" oninput="setSet('${e.l}',${i},'reps',this.value)">
     </div>`;
   }
   return `<div class="sets"><div class="setrow"><span></span><span class="hd">Peso</span><span class="hd">Reps</span></div>${rows}</div>`;
